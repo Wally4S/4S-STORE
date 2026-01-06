@@ -67,7 +67,7 @@ export default function Loja() {
       </a>
 
       <h1 className="text-4xl font-bold text-center text-blue-500 mb-10 drop-shadow-[0_0_12px_#3b82f6]">
-        4S STORE
+        Loja WYD Hell
       </h1>
 
       <div className="flex justify-center gap-3 mb-10 flex-wrap">
@@ -106,9 +106,7 @@ export default function Loja() {
               {produto.nome}
             </h2>
 
-            <p className="mt-1 text-center text-zinc-300">
-              R$ {produto.preco}
-            </p>
+            <p className="mt-1 text-center text-zinc-300">R$ {produto.preco}</p>
 
             <button
               onClick={() => setAberto(aberto === index ? null : index)}
