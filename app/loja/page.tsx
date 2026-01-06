@@ -62,6 +62,7 @@ export default function Loja() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-black via-zinc-900 to-black text-white py-16 px-6">
+
       <a href="/" className="inline-block mb-8 text-blue-400 hover:text-blue-300">
         ← Voltar para início
       </a>
@@ -90,7 +91,10 @@ export default function Loja() {
         {produtosFiltrados.map((produto, index) => (
           <div
             key={index}
-            className="relative w-[230px] p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-500 hover:-translate-y-2 hover:scale-[1.015] hover:border-blue-500 hover:shadow-[0_0_28px_#3b82f6]"
+            className="relative w-[230px] p-4 rounded-xl bg-white/5 backdrop-blur-md
+                       border border-white/10 transition-all duration-500
+                       hover:-translate-y-2 hover:scale-[1.015]
+                       hover:border-blue-500 hover:shadow-[0_0_28px_#3b82f6]"
           >
             <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-transparent pointer-events-none" />
 
@@ -98,7 +102,8 @@ export default function Loja() {
               <img
                 src={produto.imagem}
                 alt={produto.nome}
-                className="max-h-full max-w-full object-contain rounded-md drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                className="max-h-full max-w-full object-contain rounded-md
+                           drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"
               />
             </div>
 
@@ -106,7 +111,9 @@ export default function Loja() {
               {produto.nome}
             </h2>
 
-            <p className="mt-1 text-center text-zinc-300">R$ {produto.preco}</p>
+            <p className="mt-1 text-center text-zinc-300">
+              R$ {produto.preco}
+            </p>
 
             <button
               onClick={() => setAberto(aberto === index ? null : index)}
@@ -132,7 +139,8 @@ export default function Loja() {
             <a
               href={produto.pagamento}
               target="_blank"
-              className="block mt-5 text-center text-sm font-bold py-2.5 rounded-lg bg-green-600 hover:bg-green-700 transition"
+              className="block mt-5 text-center text-sm font-bold py-2.5 rounded-lg
+                         bg-green-600 hover:bg-green-700 transition"
             >
               Comprar via PIX
             </a>
