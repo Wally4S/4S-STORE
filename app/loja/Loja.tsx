@@ -22,7 +22,6 @@ export default function Loja() {
       categoria: "baixo",
       descricao: "Visual clássico usado por Eremes.",
       detalhes: ["Tipo: Visual", "Equipa em: Baixo"],
-      pagamento: "#",
     },
     {
       nome: "Cachecol Azul do Eremes",
@@ -31,7 +30,6 @@ export default function Loja() {
       categoria: "baixo",
       descricao: "Visual alternativo.",
       detalhes: ["Tipo: Visual", "Equipa em: Baixo"],
-      pagamento: "#",
     },
     {
       nome: "Asas Infernais",
@@ -40,7 +38,6 @@ export default function Loja() {
       categoria: "capa",
       descricao: "Visual raro e intimidador.",
       detalhes: ["Tipo: Visual", "Equipa em: Costas"],
-      pagamento: "#",
     },
     {
       nome: "Poção Suprema",
@@ -49,7 +46,6 @@ export default function Loja() {
       categoria: "consumiveis",
       descricao: "Restaura HP e MP.",
       detalhes: ["Uso único"],
-      pagamento: "#",
     },
   ];
 
@@ -119,12 +115,26 @@ export default function Loja() {
                     <li key={i}>{d}</li>
                   ))}
                 </ul>
-                <a
-                  href={produto.pagamento}
-                  className="block mt-3 text-center bg-green-600 hover:bg-green-500 py-2 rounded"
+
+                {/* BOTÃO PIX REAL */}
+                <button
+                  onClick={async () => {
+                    const res = await fetch("/api/pix", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        valor: Number(produto.preco.replace(",", ".")),
+                        descricao: produto.nome,
+                      }),
+                    });
+
+                    const data = await res.json();
+                    window.open(data.ticket_url, "_blank");
+                  }}
+                  className="block mt-4 w-full text-center bg-green-600 hover:bg-green-500 py-2 rounded font-bold"
                 >
-                  Comprar
-                </a>
+                  Comprar via PIX
+                </button>
               </div>
             )}
           </div>

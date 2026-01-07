@@ -1,36 +1,27 @@
 import { NextResponse } from "next/server";
+import MercadoPagoConfig, { Payment } from "mercadopago";
+
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
+});
 
 export async function POST(req: Request) {
   const body = await req.json();
 
-  const response = await fetch(
-    "https://api.mercadopago.com/v1/payments",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        transaction_amount: Number(body.valor),
-        payment_method_id: "pix",
-        description: body.descricao,
-        payer: {
-          email: body.email,
-        },
-        metadata: {
-          pedido: body.pedido,
-        },
-      }),
-    }
-  );
+  const payment = new Payment(client);
 
-  const data = await response.json();
+  const result = await payment.create({
+    body: {
+      transaction_amount: body.valor,
+      description: body.descricao,
+      payment_method_id: "pix",
+      payer: {
+        email: "cliente@email.com",
+      },
+    },
+  });
 
   return NextResponse.json({
-    qrCodeBase64:
-      data.point_of_interaction.transaction_data.qr_code_base64,
-    copiaCola:
-      data.point_of_interaction.transaction_data.qr_code,
+    ticket_url: result.point_of_interaction.transaction_data.ticket_url,
   });
 }
