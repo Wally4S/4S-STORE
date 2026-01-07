@@ -14,6 +14,31 @@ export default function Loja() {
     if (categoria) setCategoriaAtiva(categoria);
   }, [searchParams]);
 
+  async function comprarPix(produto: any) {
+    try {
+      const res = await fetch("/api/pix", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          valor: Number(produto.preco.replace(",", ".")),
+          descricao: produto.nome,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.ticket_url) {
+        window.open(data.ticket_url, "_blank");
+      } else {
+        alert("Erro ao gerar PIX");
+      }
+    } catch (err) {
+      alert("Erro ao conectar com pagamento");
+    }
+  }
+
   const produtos = [
     {
       nome: "Cachecol Preto do Eremes",
@@ -86,19 +111,11 @@ export default function Loja() {
             key={index}
             className="w-[240px] rounded-xl bg-white/5 border border-white/10 p-4"
           >
-            <img
-              src={produto.imagem}
-              alt={produto.nome}
-              className="rounded-md"
-            />
+            <img src={produto.imagem} alt={produto.nome} className="rounded-md" />
 
-            <h2 className="mt-3 font-bold text-blue-400">
-              {produto.nome}
-            </h2>
+            <h2 className="mt-3 font-bold text-blue-400">{produto.nome}</h2>
 
-            <p className="text-sm text-zinc-300">
-              R$ {produto.preco}
-            </p>
+            <p className="text-sm text-zinc-300">R$ {produto.preco}</p>
 
             <button
               onClick={() => setAberto(aberto === index ? null : index)}
@@ -110,27 +127,15 @@ export default function Loja() {
             {aberto === index && (
               <div className="mt-3 text-sm text-zinc-300">
                 <p>{produto.descricao}</p>
+
                 <ul className="list-disc ml-4 mt-2">
                   {produto.detalhes.map((d, i) => (
                     <li key={i}>{d}</li>
                   ))}
                 </ul>
 
-                {/* BOTÃO PIX REAL */}
                 <button
-                  onClick={async () => {
-                    const res = await fetch("/api/pix", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        valor: Number(produto.preco.replace(",", ".")),
-                        descricao: produto.nome,
-                      }),
-                    });
-
-                    const data = await res.json();
-                    window.open(data.ticket_url, "_blank");
-                  }}
+                  onClick={() => comprarPix(produto)}
                   className="block mt-4 w-full text-center bg-green-600 hover:bg-green-500 py-2 rounded font-bold"
                 >
                   Comprar via PIX

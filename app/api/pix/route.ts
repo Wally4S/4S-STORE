@@ -1,27 +1,58 @@
 import { NextResponse } from "next/server";
-import MercadoPagoConfig, { Payment } from "mercadopago";
 
-const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN!,
-});
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
+    const { valor, descricao } = body;
 
-  const payment = new Payment(client);
+    if (!valor || !descricao) {
+      return NextResponse.json(
+        { error: "Dados inválidos" },
+        { status: 400 }
+      );
+    }
 
-  const result = await payment.create({
-    body: {
-      transaction_amount: body.valor,
-      description: body.descricao,
-      payment_method_id: "pix",
-      payer: {
-        email: "cliente@email.com",
-      },
-    },
-  });
+    const response = await fetch(
+      "https://api.mercadopago.com/v1/payments",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+          "X-Idempotency-Key": crypto.randomUUID(),
+        },
+        body: JSON.stringify({
+          transaction_amount: valor,
+          description: descricao,
+          payment_method_id: "pix",
+          payer: {
+            email: "comprador@email.com",
+          },
+        }),
+      }
+    );
 
-  return NextResponse.json({
-    ticket_url: result.point_of_interaction.transaction_data.ticket_url,
-  });
+    const data = await response.json();
+
+    if (!data.point_of_interaction?.transaction_data?.ticket_url) {
+      console.error("Erro Mercado Pago:", data);
+      return NextResponse.json(
+        { error: "Erro ao gerar PIX" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      ticket_url:
+        data.point_of_interaction.transaction_data.ticket_url,
+    });
+  } catch (error) {
+    console.error("Erro API PIX:", error);
+    return NextResponse.json(
+      { error: "Erro interno" },
+      { status: 500 }
+    );
+  }
 }
