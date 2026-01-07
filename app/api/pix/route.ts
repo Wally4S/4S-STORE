@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import MercadoPago from "mercadopago";
 
-export const dynamic = "force-dynamic";
+const client = new MercadoPago({
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN as string,
+});
 
 export async function POST(req: Request) {
   try {
@@ -14,44 +17,25 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await fetch(
-      "https://api.mercadopago.com/v1/payments",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.MP_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
-          "X-Idempotency-Key": crypto.randomUUID(),
-        },
-        body: JSON.stringify({
-          transaction_amount: valor,
-          description: descricao,
-          payment_method_id: "pix",
-          payer: {
-            email: "comprador@email.com",
-          },
-        }),
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.point_of_interaction?.transaction_data?.ticket_url) {
-      console.error("Erro Mercado Pago:", data);
-      return NextResponse.json(
-        { error: "Erro ao gerar PIX" },
-        { status: 500 }
-      );
-    }
+    const pagamento = await client.payment.create({
+      transaction_amount: valor,
+      description: descricao,
+      payment_method_id: "pix",
+      payer: {
+        email: "cliente@seudominio.com",
+      },
+    });
 
     return NextResponse.json({
-      ticket_url:
-        data.point_of_interaction.transaction_data.ticket_url,
+      ticket_url: pagamento.point_of_interaction?.transaction_data?.ticket_url,
+      qr_code: pagamento.point_of_interaction?.transaction_data?.qr_code,
+      qr_code_base64:
+        pagamento.point_of_interaction?.transaction_data?.qr_code_base64,
     });
   } catch (error) {
-    console.error("Erro API PIX:", error);
+    console.error("Erro PIX:", error);
     return NextResponse.json(
-      { error: "Erro interno" },
+      { error: "Erro ao gerar pagamento PIX" },
       { status: 500 }
     );
   }
